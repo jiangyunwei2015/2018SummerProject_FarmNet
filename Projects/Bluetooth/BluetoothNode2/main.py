@@ -16,7 +16,7 @@ def BlueToothFun():
     bluetooth = Bluetooth() #create a bluetooth object
     bluetooth.set_advertisement(name='LoPyServer2', service_uuid=b'1234567890123456')
     #id for this device 
-    deviceID = 888
+    deviceID = 222
     #using callback conn_cb to check client's connection
 
     ##Function:   conn_cb(callback for bluetooth object events checking)
@@ -39,22 +39,22 @@ def BlueToothFun():
 
     chr1 = srv1.characteristic(uuid=b'ab34567890123456', value=5)
 
-    char1_read_counter = 0
+    #char1_read_counter = 0
 
     def char1_cb_handler(chr):
-        global char1_read_counter
-        char1_read_counter += 1
+        #global char1_read_counter
+       # char1_read_counter += 1
 
         events = chr.events()
         if  events & Bluetooth.CHAR_WRITE_EVENT:
             print("Write request with value = {}".format(chr.value()))
         else:
             #modify here to send message to other clients
-            return str(deviceID)+' '+str(char1_read_counter)
+            return str(deviceID)
     #using the callback to send the data to other clients
     char1_cb = chr1.callback(trigger=Bluetooth.CHAR_WRITE_EVENT | Bluetooth.CHAR_READ_EVENT, handler=char1_cb_handler)
 
-    srv2 = bluetooth.service(uuid=1234, isprimary=True)
+    '''srv2 = bluetooth.service(uuid=1234, isprimary=True)
 
     chr2 = srv2.characteristic(uuid=4567, value=0x1234)
     char2_read_counter = 0xF0
@@ -64,7 +64,7 @@ def BlueToothFun():
         if char2_read_counter > 0xF1:
             return char2_read_counter
 
-    char2_cb = chr2.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)
+    char2_cb = chr2.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)'''
 
     #Secondly, also act as client
     bt = Bluetooth()
@@ -101,10 +101,14 @@ def BlueToothFun():
                             print('char {} value = {}'.format(char.uuid(), char.read()))
                 conn.disconnect()
                 print('connected?',conn.isconnected())
-                break
+                #break
+                time.sleep(1)
+                bt.start_scan(-1)
             except:
                 print("Error while connecting or reading from the BLE device")
-                break
+                #break
+                time.sleep(1)
+                bt.start_scan(-1)
 
 
 
