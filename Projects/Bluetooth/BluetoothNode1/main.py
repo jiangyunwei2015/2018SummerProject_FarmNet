@@ -73,7 +73,8 @@ def BlueToothFun():
         adv = bt.get_adv()
         #servermac = ''#save the serer mac
         #use resolve_adv_data to resolve the 31 bytes of the advertisement message
-        if adv and bt.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL) == 'LoPyServer2':
+        #if adv and bt.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL) == 'LoPyServer3':
+        if adv:
             try:
                 #Opens a BLE connection with the device specified by the mac_addr argument
                 #This function blocks until the connection succeeds or fails.
@@ -97,9 +98,9 @@ def BlueToothFun():
                         if (char.properties() & Bluetooth.PROP_READ):
                             print('char {} value = {}'.format(char.uuid(), char.read()))
                 conn.disconnect()
-                print('connected?',conn.isconnected())
+                #print('connected?',conn.isconnected())
                 #break
-                time.sleep(1)
+                time.sleep(3)
                 bt.start_scan(-1) 
             except:
                 print("Error while connecting or reading from the BLE device")
