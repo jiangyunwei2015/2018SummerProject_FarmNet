@@ -68,9 +68,9 @@ import config
 lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.US915)
 
 # create an ABP authentication params
-dev_addr = struct.unpack(">l", binascii.unhexlify('260214B3'))[0]
-nwk_swkey = binascii.unhexlify('2C2139EEC68B264BF1F0EDCE183CE33F')
-app_swkey = binascii.unhexlify('C25FB9A263307BF86B659298D86D4A45')
+dev_addr = struct.unpack(">l", binascii.unhexlify('26021A14'))[0]
+nwk_swkey = binascii.unhexlify('BB515D851353D2AB5ACCD112F0F2C597')
+app_swkey = binascii.unhexlify('B74092CB7C5A79CAD681C384ABF925D2')
 
 # remove all the channels
 for channel in range(0, 72):
@@ -103,9 +103,8 @@ for i in range (200):
     time.sleep(6)
 
 
-'''
 """ OTAA Node example compatible with the LoPy Nano Gateway """
-
+'''
 from network import LoRa
 import socket
 import binascii
@@ -122,7 +121,7 @@ import config
 lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.US915)
 
 # create an OTA authentication params
-dev_eui = binascii.unhexlify('70B3D54998BA8E21')
+dev_eui = binascii.unhexlify('70B3D54999313D35')
 app_eui = binascii.unhexlify('70B3D57ED0010707')
 app_key = binascii.unhexlify('35612692F9AEB45035A26064BFDE910B')
 
