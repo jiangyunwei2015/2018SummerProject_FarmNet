@@ -10,13 +10,17 @@ import _thread
 # This node will act as both BLE server  # 
 # and client itself                      #
 ##########################################
+#id for this device 
+deviceID = 111
+connectionCounter = 0
 def BlueToothFun():
+    global deviceID
+    global connectionCounter
     #Also act as a server
     pycom.heartbeat(False)
     bluetooth = Bluetooth() #create a bluetooth object
     bluetooth.set_advertisement(name='LoPyServer1', service_uuid=b'1234567890123456')
-    #id for this device 
-    deviceID = 111
+    
     #using callback conn_cb to check client's connection
 
     ##Function:   conn_cb(callback for bluetooth object events checking)
@@ -44,13 +48,14 @@ def BlueToothFun():
     def char1_cb_handler(chr):
         #global char1_read_counter
         #char1_read_counter += 1
-
+        global connectionCounter
         events = chr.events()
         if  events & Bluetooth.CHAR_WRITE_EVENT:
             print("Write request with value = {}".format(chr.value()))
         else:
             #modify here to send message to other clients
-            return str(deviceID)
+            connectionCounter += 1
+            return str(deviceID)+' '+str(connectionCounter)
     #using the callback to send the data to other clients
     char1_cb = chr1.callback(trigger=Bluetooth.CHAR_WRITE_EVENT | Bluetooth.CHAR_READ_EVENT, handler=char1_cb_handler)
 
@@ -105,7 +110,7 @@ def BlueToothFun():
             except:
                 print("Error while connecting or reading from the BLE device")
                 #break
-                time.sleep(1)
+                time.sleep(3)
                 bt.start_scan(-1)
 
 
@@ -134,4 +139,4 @@ def LoRaFun():
 #Start these two threads
 print("Start work!")
 _thread.start_new_thread(BlueToothFun,())
-_thread.start_new_thread(LoRaFun,())
+#_thread.start_new_thread(LoRaFun,())

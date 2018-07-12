@@ -11,6 +11,7 @@ import _thread
 # and client itself                      #
 ##########################################
 def BlueToothFun():
+    '''
     #Firstly,act as a server
     pycom.heartbeat(False)
     bluetooth = Bluetooth() #create a bluetooth object
@@ -53,7 +54,7 @@ def BlueToothFun():
             return str(deviceID)
     #using the callback to send the data to other clients
     char1_cb = chr1.callback(trigger=Bluetooth.CHAR_WRITE_EVENT | Bluetooth.CHAR_READ_EVENT, handler=char1_cb_handler)
-
+'''
     '''srv2 = bluetooth.service(uuid=1234, isprimary=True)
 
     chr2 = srv2.characteristic(uuid=4567, value=0x1234)
@@ -69,6 +70,7 @@ def BlueToothFun():
     #Secondly, also act as client
     bt = Bluetooth()
     bt.start_scan(-1)
+    counter = 0
     while True:
         #Gets an named tuple with the advertisement data received during the scanning. 
         #The structure is (mac, addr_type, adv_type, rssi, data)
@@ -83,11 +85,13 @@ def BlueToothFun():
                 #print(adv.mac)
                 #global servermac#change servermac to global
                 #servermac = adv.mac
+                counter += 1
                 conn = bt.connect(adv.mac)
-                print('connected?',conn.isconnected())
+                #print('connected?',conn.isconnected())
                 services = conn.services()
-                print('This is service',services)
+                #print('This is service',services)
                 #print(services)
+                '''
                 for service in services:
                     print('This is service uuid',service.uuid())
                     time.sleep(0.050)
@@ -99,6 +103,17 @@ def BlueToothFun():
                     for char in chars:
                         if (char.properties() & Bluetooth.PROP_READ):
                             print('char {} value = {}'.format(char.uuid(), char.read()))
+                '''
+                #Yunwei - it seems that only when the type of uuid is bytes then could read the data from server
+                for service in services:
+                    time.sleep(0.050)
+                    if type(service.uuid()) == bytes:
+                        chars = service.characteristics()
+                        for char in chars:
+                            #check if the character properties is PROP_READ
+                            if (char.properties() & Bluetooth.PROP_READ):
+                                print('char {} value = {}'.format(char.uuid(), char.read())+str(counter))
+                #Yunwei
                 conn.disconnect()
                 print('connected?',conn.isconnected())
                 #break
@@ -109,6 +124,7 @@ def BlueToothFun():
                 #break
                 time.sleep(1)
                 bt.start_scan(-1)
+                print('Scan again')
 
 
 
@@ -136,4 +152,4 @@ def LoRaFun():
 #Start these two threads
 print("Start work!")
 _thread.start_new_thread(BlueToothFun,())
-_thread.start_new_thread(LoRaFun,())
+#_thread.start_new_thread(LoRaFun,())
