@@ -69,7 +69,7 @@ def BlueToothFun():
         if char2_read_counter > 0xF1:
             return char2_read_counter
     char2_cb = chr2.callback(trigger=Bluetooth.CHAR_READ_EVENT, handler=char2_cb_handler)'''
-
+'''
     bt = Bluetooth()
     bt.start_scan(-1)
     while True:
@@ -112,7 +112,7 @@ def BlueToothFun():
                 #break
                 time.sleep(3)
                 bt.start_scan(-1)
-
+'''
 
 
 ################ LoRa Part ################
