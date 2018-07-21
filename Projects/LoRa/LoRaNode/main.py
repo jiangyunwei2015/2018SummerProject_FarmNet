@@ -51,6 +51,9 @@ while True:
     time.sleep(4)
 '''
 
+
+
+
 #####ABP example#####
 from network import LoRa
 import socket
@@ -68,9 +71,9 @@ import config
 lora = LoRa(mode=LoRa.LORAWAN, region=LoRa.US915)
 
 # create an ABP authentication params
-dev_addr = struct.unpack(">l", binascii.unhexlify('260214B3'))[0]
-nwk_swkey = binascii.unhexlify('2C2139EEC68B264BF1F0EDCE183CE33F')
-app_swkey = binascii.unhexlify('C25FB9A263307BF86B659298D86D4A45')
+dev_addr = struct.unpack(">l", binascii.unhexlify('26021272'))[0]
+nwk_swkey = binascii.unhexlify('BD274745EABDCE7C1950118A58EB4861')
+app_swkey = binascii.unhexlify('466DD6CA1A85DFAD9172724165F86F17')
 
 # remove all the channels
 for channel in range(0, 72):
@@ -91,15 +94,16 @@ s.setsockopt(socket.SOL_LORA, socket.SO_DR, 3)# last parameter is 3
 
 # make the socket non-blocking
 s.setblocking(False)
-
+payload = b'\x00\x01\x02\x03'
 for i in range (200):
     pkt = b'PKT #' + bytes([i])
-    print('Sending:', pkt)
-    s.send(pkt)
-    time.sleep(4)
-    rx, port = s.recvfrom(256)
-    if rx:
-        print('Received: {}, on port: {}'.format(rx, port))
+    print('Sending:', payload)
+    s.send(payload)
+    time.sleep(10)
+
+    #rx, port = s.recvfrom(256)
+    #if rx:
+    #   print('Received: {}, on port: {}'.format(rx, port))
     time.sleep(6)
 
 

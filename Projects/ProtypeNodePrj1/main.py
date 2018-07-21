@@ -13,6 +13,7 @@ import _thread
 import binascii
 import struct
 import config
+import gc
 #Global variables used in this file
 BLEConnectionCounter = 0 # count the connection by clients
 # Function testing
@@ -84,22 +85,41 @@ def BLEServer():
     #set up BLE service
     srv1 = bluetooth.service(uuid=b'1111111111111111', isprimary=True)
     #set up service character
-    chr1 = srv1.characteristic(uuid=b'1111111111111111', value=5)
+    #chr1 = srv1.characteristic(uuid = b'ab34567890123456', properties = Bluetooth.PROP_READ, value=99999,  permissions = (1 << 0) | (1 << 4))
+    chr1 = srv1.characteristic(uuid=b'1111111111111111', properties = Bluetooth.PROP_READ | Bluetooth.PROP_WRITE,value=5)
     #char1_read_counter = 0
     def char1_cb_handler(chr):
         #global char1_read_counter
         #char1_read_counter += 1
         global BLEConnectionCounter
         events = chr.events()
+        print(events)
         if  events & Bluetooth.CHAR_WRITE_EVENT:
             print("Write request with value = {}".format(chr.value()))
         else:
             #modify here to send its device_id to other clients
             BLEConnectionCounter += 1
-            p
             return str(globalvar.device_id)+' '+str(BLEConnectionCounter)
     #using the callback to send the data to other clients
     char1_cb = chr1.callback(trigger=Bluetooth.CHAR_WRITE_EVENT | Bluetooth.CHAR_READ_EVENT, handler=char1_cb_handler)
+    '''
+    #what if use this bluetooth object act as client?
+    #can't work, just skip
+    print('start scan!')
+    bluetooth.start_scan(-1)
+    #bluetooth_client.start_scan(10)
+    adv = bluetooth.get_adv()
+        #servermac = ''#save the serer mac
+        #use resolve_adv_data to resolve the 31 bytes of the advertisement message
+        #Here is problem: when disconnect from server, then adv will always be null...
+
+    #if get a valid advertisement from one server
+    if adv:
+        server_name = bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL)
+        #print(server_name)
+        if checkValidServer(server_name):
+            print(server_name)
+    '''
 
 def BLEAndLoRaFun():
     ###### First, initialize as one LoRa node device ######
@@ -175,7 +195,7 @@ def BLEAndLoRaFun():
 	'''
     ###### Third, set up BLE client service ######
     bluetooth_client = Bluetooth()
-    bluetooth_client.start_scan(-1)
+    bluetooth_client.start_scan(10)
     #server_name1 = bluetooth_client.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL)
     
     counter = 50
@@ -217,24 +237,52 @@ def BLEAndLoRaFun():
                                     print('char {} value = {}'.format(char.uuid(), char.read()))
                                     counter -= 1
                                     #Use LoRa to send the data out
-                                    s.send(char.read())
-                                    time.sleep(4)
+                                    #s.send(char.read())
+                                    time.sleep(2)
+                                if (char.properties() & Bluetooth.PROP_WRITE):
+                                    print('write to server!')
+                                    char.write(b'x01')
+                                    time.sleep(2)
                     #Yunwei
                     conn.disconnect()
                     print('connected?',conn.isconnected())
                     #break
-                    time.sleep(6)
-                    bluetooth_client.start_scan(-1)
+                    time.sleep(3)
+                    gc.collect()
+                    #bluetooth_client.start_scan(-1)
+                    bluetooth_client.stop_scan()
+                    bluetooth_client.deinit()
+                    print('deinit')
+                    time.sleep(3)
+                    bluetooth_client.init()
+                    bluetooth_client.start_scan(10)
                 except:
                     print("Error while connecting or reading from the BLE device")
                     #break
                     time.sleep(1)
-                    bluetooth_client.start_scan(-1)
-                    print('Scan again')
-
+                    if(bluetooth_client.isscanning()):
+                        bluetooth_client.stop_scan()
+                        bluetooth_client.deinit()
+                        time.sleep(1)
+                        bluetooth_client.init()
+                        time.sleep(1)
+                        #init again
+                        #bluetooth_client.init(id=0, mode=Bluetooth.BLE, antenna=None)
+                        bluetooth_client.start_scan(10)
+                    else:
+                        bluetooth_client.deinit()
+                        time.sleep(1)
+                        bluetooth_client.init()
+                        time.sleep(1)
+                        bluetooth_client.start_scan(10)
+    bluetooth_client.stop_scan()
+    bluetooth_client.deinit()
 #Start this thread
 print("Start work!")
 #Start BLE server service
 BLEServer()
+BLEAndLoRaFun()
+
+
 #_thread.start_new_thread(BLEAndLoRaFun,())
 
