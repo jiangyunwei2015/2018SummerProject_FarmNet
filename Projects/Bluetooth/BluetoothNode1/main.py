@@ -54,8 +54,8 @@ def BlueToothFun():
             print("Write request with value = {}".format(chr.value()))
         else:
             #modify here to send message to other clients
-            connectionCounter += 1
-            return str(deviceID)+' '+str(connectionCounter)
+            #connectionCounter += 1
+            return str(deviceID)
     #using the callback to send the data to other clients
     char1_cb = chr1.callback(trigger=Bluetooth.CHAR_WRITE_EVENT | Bluetooth.CHAR_READ_EVENT, handler=char1_cb_handler)
 
