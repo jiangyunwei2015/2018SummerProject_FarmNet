@@ -56,7 +56,7 @@ def LoRaFun():
                         # If the uart = machine.UART(0, 115200) and os.dupterm(uart) are set in the boot.py this print should appear in the serial port
                         print("Message Failed")
         
-        time.sleep(15)
+        time.sleep(10)
 
 #BLE client part
 def BLEClient():
